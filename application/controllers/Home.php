@@ -10,6 +10,7 @@ class Home extends CI_Controller
     //load model login_mmodel
     $this->load->model('login_model');
     $this->load->model('wa_model');
+    $this->load->model('menu_model');
   }
   public function index()
   {
@@ -33,7 +34,7 @@ class Home extends CI_Controller
       $role = $this->session->userdata("user_role");
       if ($role == 'admin') {
         //jika memang session sudah terdaftar, maka redirect ke halaman dahsboard
-        $this->load->view('admin/home');
+        redirect('home/dashboard', 'refresh');
       } else {
         redirect('home/member', 'refresh');
       }
@@ -51,7 +52,7 @@ class Home extends CI_Controller
       $role = $this->session->userdata("user_role");
       if ($role == 'admin') {
         //jika memang session sudah terdaftar, maka redirect ke halaman dahsboard
-        $this->load->view('admin/home');
+        redirect('home/dashboard', 'refresh');
       } else {
         redirect('home/member', 'refresh');
       }
@@ -70,8 +71,9 @@ class Home extends CI_Controller
       $role = $this->session->userdata("user_role");
       if ($role == 'admin') {
         $this->wa_model->get_credit();
+        $data['menu'] = $this->menu_model->menu();
         //jika memang session sudah terdaftar, maka redirect ke halaman dahsboard
-        $this->load->view('admin/home');
+        $this->load->view('admin/home', $data);
       } else {
         redirect('home/member', 'refresh');
       }
@@ -83,8 +85,11 @@ class Home extends CI_Controller
   {
     if ($this->login_model->logged_id()) {
       $this->wa_model->get_credit();
+      // $data['menu'] = $this->menu_model->menu();
+      // $data['role_menu'] = $this->menu_model->role_menu();
+      $data['user_role'] = $this->session->userdata('user_role');
       //jika memang session sudah terdaftar, maka redirect ke halaman dahsboard
-      $this->load->view('admin/home');
+      $this->load->view('admin/home', $data);
     } else {
       redirect('home/signin', 'refresh');
     }

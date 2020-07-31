@@ -90,39 +90,59 @@
                   <span>Add New Post</span>
                 </a>
               </li> -->
+
               <?php
-              $role = $this->session->userdata("user_role");
-              $link_wa = base_url('wa');
-              $link_api = base_url('wa/api_setting');
-              $saldo = $this->session->flashdata('balance');
-              if ($role == 'admin') {
-                echo "
-                <li class='nav-item dropdown'>
-                <a class='nav-link dropdown-toggle text-nowrap' data-toggle='dropdown' href='form-components.html' role='button' aria-haspopup='true' aria-expanded='false'>
-                  <i class='material-icons'>supervisor_account</i>
-                  <span>Admin Fitur</span>
-                </a>
-                <div class='dropdown-menu dropdown-menu-small'>
-                  <a class='dropdown-item' href='$link_api'>
-                    <i class='material-icons'>settings</i>API SETTING (RAPIWHA)</a>
-                  <a class='dropdown-item' href='$link_wa'>
-                    <i class='fa fa-whatsapp'></i>WA TEST ($saldo)</a>
-                </div>
-              </li>";
-              } else {
-                echo "
-                <li class='nav-item dropdown'>
-                <a class='nav-link dropdown-toggle text-nowrap' data-toggle='dropdown' href='form-components.html' role='button' aria-haspopup='true' aria-expanded='false'>
-                  <i class='material-icons'>supervisor_account</i>
-                  <span>Fitur Dasar</span>
-                </a>
-                <div class='dropdown-menu dropdown-menu-small'>
-                  <a class='dropdown-item' href='$link_wa'>
-                    <i class='fa fa-whatsapp'></i>WA TEST ($saldo)</a>
-                </div>
-              </li>";
+              $user_id = $this->session->userdata("user_id");
+              $base = base_url();
+              $role_management = $this->db->query("select *from hakakses_tbl where id_user ='$user_id'");
+
+              foreach ($role_management->result() as $role_m) {
+                $id_menu = $role_m->id_menu;
+                $role = $role_m->role;
+                if ($role == 1) {
+                  $menu = $this->db->query("select *from menu_tbl where  (premium = 'Y' or premium = 'N')");
+                } else {
+                  $premium = 'N';
+                  $menu = $this->db->query("select *from menu_tbl where id_menu = '$id_menu' and premium = '$premium'");
+                }
+                foreach ($menu->result() as $menus) {
+
+                  if ($menus->sub_active == 'Y') {
+
+                    echo
+                      "<li class='nav-item dropdown'>
+                  <a class='nav-link dropdown-toggle text-nowrap' data-toggle='dropdown' href='$base$menus->link_menu' role='button' aria-haspopup='true' aria-expanded='false'>
+                    <i class='$menus->icon_menu'></i>
+                    <span>$menus->nama_menu</span>
+                  </a>
+                  <div class='dropdown-menu dropdown-menu-small'>
+                  ";
+                    $a = $menus->id_menu;
+                    $submenu = $this->db->query("select *from submenu_tbl where id_menu = '$a'");
+                    foreach ($submenu->result() as $sub) {
+                      if ($sub->active == 'Y') {
+                        echo "
+  <a class='dropdown-item' href='$base$sub->link'>
+    <i class='$sub->icon_submenu'></i>$sub->nama_submenu</a>";
+                      }
+                    }
+                    echo "</div>
+                  </li>";
+                  } else {
+
+                    echo
+                      "<li class='nav-item dropdown'>
+                  <a class='nav-link' href='$base$menus->link_menu'>
+                    <i class='$menus->icon_menu'></i>
+                    <span>$menus->nama_menu</span>
+                  </a></div>
+                  </li>";
+                  }
+                }
               }
+
               ?>
+
               <!-- 
               <li class="nav-item">
                 <a class="nav-link " href="tables.html">
@@ -130,12 +150,12 @@
                   <span>Tables</span>
                 </a>
               </li> -->
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a class="nav-link " href="<?= base_url('home/profile'); ?>">
                   <i class="material-icons">person</i>
                   <span>User Profile</span>
                 </a>
-              </li>
+              </li> -->
             </ul>
           </div>
         </aside>
